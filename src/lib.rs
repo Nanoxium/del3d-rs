@@ -79,15 +79,15 @@ impl TriBuilder {
 
 #[derive(Debug, Clone)]
 pub struct Tri {
-    id: isize,
+    pub id: isize,
     keep: isize,
-    a: isize,
-    b: isize,
-    c: isize,
-    ab: isize,
-    bc: isize,
-    ac: isize,
-    e: Vec3d,
+    pub a: isize,
+    pub b: isize,
+    pub c: isize,
+    pub ab: isize,
+    pub bc: isize,
+    pub ac: isize,
+    pub e: Vec3d,
 }
 
 impl Tri {
@@ -146,10 +146,10 @@ pub fn from_ref_r3_to_vec3d(points: &Vec<R3>) -> Vec<Vec3d> {
 }
 
 fn add_coplanar(pts: &Vec<R3>, hull: &mut Vec<Tri>, id: isize) {
-    println!("========== ENTERING COPLANAR! =============");
+    // println!("========== ENTERING COPLANAR! =============");
     let numh = hull.len();
     for k in 0..numh {
-        //find vizible edges. from external edges.
+        //find visible edges. from external edges.
         if hull[k].c == hull[hull[k].ab as usize].c {
             // ->  ab is an external edge.
             // test this edge for visibility from new point pts[id].
@@ -300,6 +300,7 @@ fn add_coplanar(pts: &Vec<R3>, hull: &mut Vec<Tri>, id: isize) {
             }
         }
     }
+    // println!("========= Exiting coplanar ==============");
 
     // fix up the non asigned hull adjecencies (correctly).
 
@@ -314,6 +315,7 @@ fn add_coplanar(pts: &Vec<R3>, hull: &mut Vec<Tri>, id: isize) {
         }
     }
 
+    // println!("============= Sorting norts ==============");
     norts.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
     let nums = norts.len();
@@ -323,6 +325,7 @@ fn add_coplanar(pts: &Vec<R3>, hull: &mut Vec<Tri>, id: isize) {
     if nums >= 2 {
         let mut s = 0;
         while s < (nums - 1) {
+            // println!("========== s: ({}, {}) ============= ", s, nums-1);
             if norts[s].a == norts[s + 1].a {
                 // link triangle sides.
                 if norts[s].a != norts[s + 2].a {
@@ -401,6 +404,7 @@ fn add_coplanar(pts: &Vec<R3>, hull: &mut Vec<Tri>, id: isize) {
 
 // takes a **sorted** vec of points and returns a Result of vec of triangles
 pub fn newton_apple_delauney(pts: &Vec<R3>) -> Result<Vec<Tri>, &'static str> {
+    // println!("======== Starting triangulation =========");
     let nump = pts.len();
 
     if nump <= 4 {
@@ -408,6 +412,7 @@ pub fn newton_apple_delauney(pts: &Vec<R3>) -> Result<Vec<Tri>, &'static str> {
     }
 
     let hull = init_hull3d_compact(pts);
+    // println!("============= Unwrapping Hull ==============");
     let hull = hull.unwrap();
     //int num = init_hull3D(pts, hull);
 
@@ -427,7 +432,8 @@ pub fn newton_apple_delauney(pts: &Vec<R3>) -> Result<Vec<Tri>, &'static str> {
             }
         })
         .collect();
-
+    
+    // println!("========= Forming hulk ==========");
     let mut hulk = Vec::new();
     for t in 0..numh {
         // create an index from old tri-id to new tri-id.
@@ -456,7 +462,7 @@ pub fn newton_apple_delauney(pts: &Vec<R3>) -> Result<Vec<Tri>, &'static str> {
             }
         }
     }
-
+    // println!("Exiting hulk and returning it");
     Ok(hulk)
 }
 
@@ -889,7 +895,7 @@ fn init_hull3d_compact(pts: &Vec<R3>) -> Result<Vec<Tri>, &'static str> {
     }
 
 
-    println!("max triangles used {}", hull.len());
+    // println!("max triangles used {}", hull.len());
 
     Ok(hull)
 }
